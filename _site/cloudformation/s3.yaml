@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for creating S3 buckets
+    
+Resources:
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    Description: Creating Amazon S3 bucket for hosting Working papers site
+    Properties:
+      BucketName: working-papers # choose a appropriate name here e.g. econdept
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  
+  WorkingPapersBucket:
+    Type: AWS::S3::Bucket
+    Description: Creating Amazon S3 bucket for storing working papers
+    Properties:
+      BucketName: !GetAtt ${SiteBucket.name}-wps # suffixed with "wps"
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Statement:
+          -
+            Action:
+              - s3:GetObject
+            Effect: Allow
+            Resource:
+              - !Sub arn:aws:s3:::${SiteBucket}/*
+            Principal:
+              AWS:
+                - '*'
+    
+  WorkingPapersBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WorkingPapersBucket
+      PolicyDocument:
+        Statement:
+          -
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Effect: Allow
+            Resource:
+              - !Sub arn:aws:s3:::${WorkingPapersBucket}/*
+            Principal:
+              AWS:
+                - '*'
+Outputs:
+  SiteBucket:
+    Description: Site bucket created using this template.
+    Value: !Ref SiteBucket
+
+  WorkingPapersBucket:
+    Description: Working papers respository created using this template.
+    Value: !Ref WorkingPapersBucket
+
+  WebsiteURL:
+    Value: !GetAtt SiteBucket.WebsiteURL
+    Description: URL for the working papers website hosted on S3

@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates Lambda function for PaperTool
+Metadata:
+    Generator: "papertool"
+
+Parameters:
+  LambdaFunctionBucket:
+    Type: String
+
+Resources:
+  # CloudFormation creates a lambda function named <CloudFormationStackName-ResourceName-RandomChars>
+  # Example: CreateLambdaFunction-UploadPaper-N7S3FMXJ8Z8R
+  UploadLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: uploadPaper
+      Code:
+        S3Bucket: !Ref LambdaFunctionBucket
+        S3Key: uploadPaper.zip
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.7
+      Tags:
+      -
+        Key: created_by
+        Value: papertool
+
+  # Creates an execution role called <CloudFormationStackName-ResourceName-RandomChars>
+  # Example: CreateLambdaFunction-LambdaExecutionRole-1TWFONVJX3VZQ
+  # The execution role is assigned to the lambda function
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - "sts:AssumeRole"
+      Path: "/"
+      # Create a policy attached to the role
+      # Allow Cloudwatch logging
+      Policies:
+      - PolicyName: "AllowLogging"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: "Allow"
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+
+  # Permission for API Gateway endpoint to call TestLambdaFunction
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt
+        - UploadLambdaFunction
+        - Arn
+      Principal: apigateway.amazonaws.com
+
+  # APIGateway
+  # Defines the creation of /upload endpoint for handling the upload of working
+  # paper from the front-end and trigerring the Lambda function 
+  ApiGatewayRestApi:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "uploadAPI"
+      Description: "API for the working paper series"
+      ApiKeySourceType: "HEADER"
+      EndpointConfiguration: 
+        Types: 
+        - "REGIONAL"
+
+  ApiGatewayStage:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      StageName: "v1"
+      DeploymentId: !Ref ApiGatewayDeployment
+      RestApiId: !Ref ApiGatewayRestApi
+      Description: "upload"
+      CacheClusterEnabled: false
+      TracingEnabled: false
+
+  ApiGatewayDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+
+  ApiGatewayResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      PathPart: "upload"
+      ParentId: !GetAtt ApiGatewayRestApi.RootResourceId
+
+  ApiGatewayMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref ApiGatewayResource
+      HttpMethod: "POST"
+      AuthorizationType: "NONE"
+      ApiKeyRequired: false
+      RequestParameters: {}
+      MethodResponses: 
+      - 
+        ResponseModels: 
+          "application/json": !Ref ApiGatewayModel2
+        ResponseParameters: 
+          "method.response.header.Access-Control-Allow-Origin": false
+        StatusCode: "200"
+      Integration: 
+        CacheNamespace: !Ref ApiGatewayResource
+        ContentHandling: "CONVERT_TO_TEXT"
+        IntegrationHttpMethod: "POST"
+        IntegrationResponses: 
+        - 
+          ResponseParameters: 
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+          ResponseTemplates: {}
+          StatusCode: "200"
+        PassthroughBehavior: "WHEN_NO_TEMPLATES"
+        RequestTemplates: 
+          "application/json": |
+              {
+                  "content": {
+                      #foreach( $token in $input.path('$').split('&') )
+                          #set( $keyVal = $token.split('=') )
+                          #set( $keyValSize = $keyVal.size() )
+                          #if( $keyValSize >= 1 )
+                              #set( $key = $util.urlDecode($keyVal[0]) )
+                              #if( $keyValSize >= 2 )
+                                  #set( $val = $util.urlDecode($keyVal[1]) )
+                              #else
+                                  #set( $val = '' )
+                              #end
+                              "$key": "$val"#if($foreach.hasNext),#end
+                          #end
+                      #end
+                  }
+              }
+        TimeoutInMillis: 29000
+        Type: "AWS"
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:uploadPaper/invocations"
+
+  ApiGatewayMethod2:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref ApiGatewayResource
+      HttpMethod: "OPTIONS"
+      AuthorizationType: "NONE"
+      ApiKeyRequired: false
+      RequestParameters: {}
+      MethodResponses: 
+      - 
+        ResponseModels: 
+          "application/json": !Ref ApiGatewayModel2
+        ResponseParameters: 
+          "method.response.header.Access-Control-Allow-Headers": false
+          "method.response.header.Access-Control-Allow-Methods": false
+          "method.response.header.Access-Control-Allow-Origin": false
+        StatusCode: "200"
+      Integration: 
+        CacheNamespace: !Ref ApiGatewayResource
+        IntegrationResponses: 
+        - 
+          ResponseParameters: 
+            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+            "method.response.header.Access-Control-Allow-Origin": "'*'"
+          ResponseTemplates: {}
+          StatusCode: "200"
+        PassthroughBehavior: "WHEN_NO_MATCH"
+        RequestTemplates: 
+          "application/json": "{\"statusCode\": 200}"
+        TimeoutInMillis: 29000
+        Type: "MOCK"
+
+  ApiGatewayModel:
+    Type: "AWS::ApiGateway::Model"
+    Properties:
+      RestApiId: "5v0dil8zg2"
+      Name: "Error"
+      Description: "This is a default error schema model"
+      Schema: |
+          {
+            "$schema" : "http://json-schema.org/draft-04/schema#",
+            "title" : "Error Schema",
+            "type" : "object",
+            "properties" : {
+              "message" : { "type" : "string" }
+            }
+          }
+      ContentType: "application/json"
+
+  ApiGatewayModel2:
+    Type: "AWS::ApiGateway::Model"
+    Properties:
+      RestApiId: "5v0dil8zg2"
+      Name: "Empty"
+      Description: "This is a default empty schema model"
+      Schema: |
+          {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "title" : "Empty Schema",
+            "type" : "object"
+          }
+      ContentType: "application/json"
