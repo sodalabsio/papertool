@@ -1,14 +1,24 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Creates Lambda function for PaperTool
+Description: Creates Lambda function and RestAPI (using APIGateway) for PaperTool
 Metadata:
-    Generator: "papertool"
+    Generator: "SoDa Labs"
 
 Parameters:
   LambdaFunctionBucket:
     Type: String
 
 Resources:
-  # CloudFormation creates a lambda function named <CloudFormationStackName-ResourceName-RandomChars>
+  LambdaLayer:
+    Type: "AWS::Lambda::LayerVersion"
+    Properties:
+      CompatibleRuntimes:
+      - python3.7
+      Content:
+        S3Bucket: !Sub "${LambdaFunctionBucket}"
+        S3Key: layer.zip
+      LayerName: wkhtmltopdf
+
+  # AWS Lambda definations: CloudFormation creates a lambda function named <CloudFormationStackName-ResourceName-RandomChars>
   # Example: CreateLambdaFunction-UploadPaper-N7S3FMXJ8Z8R
   UploadLambdaFunction:
     Type: AWS::Lambda::Function
@@ -16,14 +26,12 @@ Resources:
       FunctionName: uploadPaper
       Code:
         S3Bucket: !Ref LambdaFunctionBucket
-        S3Key: uploadPaper.zip
+        S3Key: uploadWorkingPaper.zip
+      Layers:
+        - !Ref LambdaLayer
       Handler: lambda_function.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: python3.7
-      Tags:
-      -
-        Key: created_by
-        Value: papertool
 
   # Creates an execution role called <CloudFormationStackName-ResourceName-RandomChars>
   # Example: CreateLambdaFunction-LambdaExecutionRole-1TWFONVJX3VZQ
@@ -63,7 +71,7 @@ Resources:
         - Arn
       Principal: apigateway.amazonaws.com
 
-  # APIGateway
+  # APIGateway definations
   # Defines the creation of /upload endpoint for handling the upload of working
   # paper from the front-end and trigerring the Lambda function 
   ApiGatewayRestApi:
@@ -71,25 +79,20 @@ Resources:
     Properties:
       Name: "uploadAPI"
       Description: "API for the working paper series"
-      ApiKeySourceType: "HEADER"
-      EndpointConfiguration: 
-        Types: 
-        - "REGIONAL"
+      # ApiKeySourceType: "HEADER"
+      # EndpointConfiguration: 
+      #   Types: 
+      #   - "REGIONAL"
 
-  ApiGatewayStage:
-    Type: "AWS::ApiGateway::Stage"
-    Properties:
-      StageName: "v1"
-      DeploymentId: !Ref ApiGatewayDeployment
-      RestApiId: !Ref ApiGatewayRestApi
-      Description: "upload"
-      CacheClusterEnabled: false
-      TracingEnabled: false
-
-  ApiGatewayDeployment:
-    Type: "AWS::ApiGateway::Deployment"
-    Properties:
-      RestApiId: !Ref ApiGatewayRestApi
+  # ApiGatewayStage:
+  #   Type: "AWS::ApiGateway::Stage"
+  #   Properties:
+  #     StageName: "v1"
+  #     DeploymentId: !Ref ApiGatewayDeployment
+  #     RestApiId: !Ref ApiGatewayRestApi
+  #     Description: "upload"
+  #     CacheClusterEnabled: false
+  #     TracingEnabled: false
 
   ApiGatewayResource:
     Type: "AWS::ApiGateway::Resource"
@@ -107,10 +110,10 @@ Resources:
       AuthorizationType: "NONE"
       ApiKeyRequired: false
       RequestParameters: {}
-      MethodResponses: 
+      MethodResponses:
       - 
-        ResponseModels: 
-          "application/json": !Ref ApiGatewayModel2
+        # ResponseModels: 
+        #   "application/json": !Ref ApiGatewayModel
         ResponseParameters: 
           "method.response.header.Access-Control-Allow-Origin": false
         StatusCode: "200"
@@ -146,69 +149,26 @@ Resources:
               }
         TimeoutInMillis: 29000
         Type: "AWS"
-        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:uploadPaper/invocations"
+        Uri:
+          Fn::Join:
+          - ''
+          - - 'arn:aws:apigateway:'
+            - Ref: AWS::Region
+            - ":lambda:path/2015-03-31/functions/"
+            - Fn::GetAtt:
+              - UploadLambdaFunction
+              - Arn
+            - "/invocations"
 
-  ApiGatewayMethod2:
-    Type: "AWS::ApiGateway::Method"
+  ApiGatewayDeployment:
+    Type: "AWS::ApiGateway::Deployment"
     Properties:
       RestApiId: !Ref ApiGatewayRestApi
-      ResourceId: !Ref ApiGatewayResource
-      HttpMethod: "OPTIONS"
-      AuthorizationType: "NONE"
-      ApiKeyRequired: false
-      RequestParameters: {}
-      MethodResponses: 
-      - 
-        ResponseModels: 
-          "application/json": !Ref ApiGatewayModel2
-        ResponseParameters: 
-          "method.response.header.Access-Control-Allow-Headers": false
-          "method.response.header.Access-Control-Allow-Methods": false
-          "method.response.header.Access-Control-Allow-Origin": false
-        StatusCode: "200"
-      Integration: 
-        CacheNamespace: !Ref ApiGatewayResource
-        IntegrationResponses: 
-        - 
-          ResponseParameters: 
-            "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
-            "method.response.header.Access-Control-Allow-Origin": "'*'"
-          ResponseTemplates: {}
-          StatusCode: "200"
-        PassthroughBehavior: "WHEN_NO_MATCH"
-        RequestTemplates: 
-          "application/json": "{\"statusCode\": 200}"
-        TimeoutInMillis: 29000
-        Type: "MOCK"
+      StageName: "v1"
+    DependsOn:
+      - ApiGatewayMethod
 
-  ApiGatewayModel:
-    Type: "AWS::ApiGateway::Model"
-    Properties:
-      RestApiId: "5v0dil8zg2"
-      Name: "Error"
-      Description: "This is a default error schema model"
-      Schema: |
-          {
-            "$schema" : "http://json-schema.org/draft-04/schema#",
-            "title" : "Error Schema",
-            "type" : "object",
-            "properties" : {
-              "message" : { "type" : "string" }
-            }
-          }
-      ContentType: "application/json"
-
-  ApiGatewayModel2:
-    Type: "AWS::ApiGateway::Model"
-    Properties:
-      RestApiId: "5v0dil8zg2"
-      Name: "Empty"
-      Description: "This is a default empty schema model"
-      Schema: |
-          {
-            "$schema": "http://json-schema.org/draft-04/schema#",
-            "title" : "Empty Schema",
-            "type" : "object"
-          }
-      ContentType: "application/json"
+Outputs:
+  ApiEndpoint:
+    Description: "URL for invocation of the REST API"
+    Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/v1/upload"

@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Creates S3 buckets for PaperTool
 Metadata:
-    Generator: "papertool"
+    Generator: "SoDa Labs"
 
 # Custom params that the user can define at the time of stack creation
 # RePEc:aaa:ssssss, where aaa is the archive code and ssssss is the series
@@ -17,8 +17,6 @@ Parameters:
     Type: String
   ArchiveCode:
     Type: String
-  # SeriesCode:
-  #   Type: String
 
 Resources:
   # S3 bucket definitions
@@ -40,10 +38,6 @@ Resources:
       WebsiteConfiguration:
         ErrorDocument: "index.html"
         IndexDocument: "index.html"
-      Tags:
-      -
-        Key: "created_by"
-        Value: "papertool"
   
   WorkingPapersBucket:
     Type: AWS::S3::Bucket
@@ -58,10 +52,6 @@ Resources:
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
-      Tags:
-      -
-        Key: "created_by"
-        Value: "sodalabs"
 
   # 3. LambdaFunctionBucket: S3 Bucket to store the uploadPaper Lambda function
   LambdaFunctionBucket:
@@ -72,10 +62,6 @@ Resources:
         VersioningConfiguration:
           Status: Enabled
         AccessControl: Private
-        Tags:
-        -
-          Key: "created_by"
-          Value: "sodalabs"
       
   # S3 bucket policies
   SiteBucketPolicy:
