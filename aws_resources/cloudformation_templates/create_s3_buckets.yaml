@@ -14,10 +14,13 @@ Metadata:
 #   c. Lambda Function bucket: econdept-mos-lambda
 Parameters:
   SiteBucketName:
-    Description: "Please enter your preferred name for the S3 bucket (Note: Bucket names MUST be unique across AWS and no Upper Case characters are allowed)"
+    Description: "Please enter your preferred name for the S3 bucket (Note: Bucket names MUST be unique across AWS and no Upper Case characters are allowed)."
     Type: String
   ArchiveCode:
-    Description: "Please enter your 3-digit RePEc code for the archive"
+    Description: "Please enter your 3-digit RePEc code for the archive."
+    Type: String
+  SeriesCode:
+    Description: "Please enter your 6-digit RePEc code for the series."
     Type: String
 
 Outputs:
@@ -29,17 +32,32 @@ Outputs:
     Description: Name of the S3 working papers archive.
     Value: !Ref WorkingPapersBucket
   
-  LambdaFunctionBucket:
+  CodeBucket:
     Description: Name of the Lambda function code respository.
-    Value: !Ref LambdaFunctionBucket
+    Value: !Ref CodeBucket
+    Export:
+      Name: CodeBucket
+      Value: !Ref CodeBucket
 
   WebsiteURL:
     Value: !GetAtt SiteBucket.WebsiteURL
     Description: URL for the working papers website hosted on S3.
+  
+  RePEcArchiveURL:
+    Value: !GetAtt WorkingPapersBucket.WebsiteURL
+    Description: URL for RePEc archive hosted on S3 that RePEc requires.
 
   AWSRegion:
     Value: !Ref AWS::Region
     Description: Name of your current AWS region.
+  
+  RePEcHandle:
+    Value: !Sub RePEc:${ArchiveCode}:${SeriesCode}
+    Description: The RePEc handle for your working paper series
+
+  TemplateURL:
+    Value: !Sub https://${SiteBucketName}-${ArchiveCode}-archive.s3.${AWS::Region}.amazonaws.com/template/cover.png
+    Description: "The URL for your working paper front-page template. Note: It should be named 'cover.png' or change the URL accordingly."
 
 Resources:
   # S3 bucket definitions
@@ -61,6 +79,19 @@ Resources:
       WebsiteConfiguration:
         ErrorDocument: "index.html"
         IndexDocument: "index.html"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+            AllowedOrigins:
+              - '*'
+            ExposeHeaders:
+              - []
+            MaxAge: '3000'
   
   WorkingPapersBucket:
     Type: AWS::S3::Bucket
@@ -75,9 +106,25 @@ Resources:
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        ErrorDocument: "index.html"
+        IndexDocument: "index.html"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+            AllowedOrigins:
+              - '*'
+            ExposeHeaders:
+              - []
+            MaxAge: '3000'
 
-  # 3. LambdaFunctionBucket: S3 Bucket to store the uploadPaper Lambda function
-  LambdaFunctionBucket:
+  # 3. CodeBucket: S3 Bucket to store the uploadPaper Lambda function
+  CodeBucket:
       Type: AWS::S3::Bucket
       Description: Creating Amazon S3 bucket for storing UploadPaper Lambda function
       Properties:
@@ -122,7 +169,7 @@ Resources:
   LambdaFunctionBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref LambdaFunctionBucket
+      Bucket: !Ref CodeBucket
       PolicyDocument:
         Statement:
           -
@@ -130,7 +177,25 @@ Resources:
               - s3:GetObject
             Effect: Allow
             Resource:
-              - !Sub arn:aws:s3:::${LambdaFunctionBucket}/*
+              - !Sub arn:aws:s3:::${CodeBucket}/*
             Principal:
               Service:
                 - cloudformation.amazonaws.com
+
+  # S3ConfigObject:
+  #   Type: AWS::S3::Object
+  #   Properties:
+  #     Target:
+  #       Bucket: !Ref CodeBucket
+  #       Key: config.json
+  #       ContentType: application/json
+  #     Body: !Sub |
+  #       {
+  #         archiveCode: ${ArchiveCode},
+  #         seriesCode: ${SeriesCode},
+  #         repecHandle: RePEc:${ArchiveCode}:${SeriesCode},
+  #         siteBucket: ${SiteBucket}, 
+  #         workingPaperBucket: ${WorkingPapersBucket},
+  #         bucketRegion: ${AWS::Region},
+  #         template_url: https://${SiteBucketName}-${ArchiveCode}-archive.s3.${AWS::Region}.amazonaws.com/template/cover.png
+  #       }

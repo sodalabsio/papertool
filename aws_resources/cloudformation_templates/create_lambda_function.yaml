@@ -3,20 +3,13 @@ Description: Creates Lambda function, RestAPI (using APIGateway) and Cognito ID 
 Metadata:
     Generator: "SoDa Labs"
 
-Parameters:
-  LambdaFunctionBucket:
-    Description: "Please enter the name of your S3 bucket that contains the uploadWorkingPaper.zip file"
-    Type: String
-
 Outputs:
   ApiEndpoint:
-    Description: URL for invocation of the REST API
+    Description: URL for invocation of the REST API.
     Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/v1/upload"
   IdentityPoolId: 
-    Description: AWS Cognito identity pool ID
+    Description: AWS Cognito identity pool ID.
     Value: !Ref CognitoIdentityPool
-    # Export:
-    #   Name: "CognitoIdentityPool::Id"
 
 Resources:
   LambdaLayer:
@@ -25,7 +18,7 @@ Resources:
       CompatibleRuntimes:
       - python3.7
       Content:
-        S3Bucket: !Sub "${LambdaFunctionBucket}"
+        S3Bucket: !ImportValue CodeBucket
         S3Key: layer.zip
       LayerName: wkhtmltopdf
 
@@ -36,12 +29,14 @@ Resources:
     Properties:
       FunctionName: uploadPaper
       Code:
-        S3Bucket: !Ref LambdaFunctionBucket
+        S3Bucket: !ImportValue CodeBucket
         S3Key: uploadWorkingPaper.zip
       Layers:
         - !Ref LambdaLayer
       Handler: lambda_function.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
+      MemorySize: 256
+      Timeout: 300
       Runtime: python3.7
 
   # Creates an execution role called <CloudFormationStackName-ResourceName-RandomChars>
@@ -183,7 +178,7 @@ Resources:
   CognitoIdentityPool:
     Type: "AWS::Cognito::IdentityPool"
     Properties:
-      IdentityPoolName: !Ref LambdaFunctionBucket
+      IdentityPoolName: !ImportValue CodeBucket
       AllowUnauthenticatedIdentities: true
   
    # Create a role for unauthorized acces to AWS resources w/ very limited access.

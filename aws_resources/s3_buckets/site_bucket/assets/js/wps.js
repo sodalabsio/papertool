@@ -1,18 +1,20 @@
 $(document).ready(function() {
     // please provide the appropriate values to the following variables
     // load variables
-    const apiEndpoint = config.apiEndpoint
-    let prefix = `RePEc/${config.archiveCode}/${config.seriesCode}/${date.getFullYear()}-`;
-    const siteBucket = config.siteBucket;
-    const workingPaperBucket = config.workingPaperBucket;
-    const bucketRegion = config.bucketRegion;
-    const IdentityPoolId = config.identityPoolId;
-    const formatNumber = n => ("0" + n).slice(-2);
-    let wpn = ""
     const date = new Date();
+    let wpn = ""
     const maxAllowedSize = 25 * 1024 * 1024; // 5 MB
     let currentYear = date.getFullYear(); 
     let currentPapers = 0;
+    // config variables
+    const apiEndpoint = config.apiEndpoint
+    let prefix = `RePEc/${config.archiveCode}/${config.seriesCode}/${date.getFullYear()}-`;
+    const siteBucket = config.siteBucket;
+    const workingPaperBucket = `${siteBucket}-archive`;
+    const bucketRegion = config.bucketRegion;
+    const IdentityPoolId = config.identityPoolId;
+    const formatNumber = n => ("0" + n).slice(-2);
+    
     function triggerError(msg){
       $("#errorModal .modal-body").html("");
       $('#errorModal .modal-body').prepend(msg)
