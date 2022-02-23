@@ -1,11 +1,22 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Creates Lambda function and RestAPI (using APIGateway) for PaperTool
+Description: Creates Lambda function, RestAPI (using APIGateway) and Cognito ID for PaperTool
 Metadata:
     Generator: "SoDa Labs"
 
 Parameters:
   LambdaFunctionBucket:
+    Description: "Please enter the name of your S3 bucket that contains the uploadWorkingPaper.zip file"
     Type: String
+
+Outputs:
+  ApiEndpoint:
+    Description: URL for invocation of the REST API
+    Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/v1/upload"
+  IdentityPoolId: 
+    Description: AWS Cognito identity pool ID
+    Value: !Ref CognitoIdentityPool
+    # Export:
+    #   Name: "CognitoIdentityPool::Id"
 
 Resources:
   LambdaLayer:
@@ -168,7 +179,44 @@ Resources:
     DependsOn:
       - ApiGatewayMethod
 
-Outputs:
-  ApiEndpoint:
-    Description: "URL for invocation of the REST API"
-    Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/v1/upload"
+  # AWS Cognito
+  CognitoIdentityPool:
+    Type: "AWS::Cognito::IdentityPool"
+    Properties:
+      IdentityPoolName: !Ref LambdaFunctionBucket
+      AllowUnauthenticatedIdentities: true
+  
+   # Create a role for unauthorized acces to AWS resources w/ very limited access.
+  CognitoUnAuthorizedRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal: 
+              Federated: "cognito-identity.amazonaws.com"
+            Action: 
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals: 
+                "cognito-identity.amazonaws.com:aud": !Ref CognitoIdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": unauthenticated
+      Policies:
+        - PolicyName: "CognitoUnauthorizedPolicy"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: "Allow"
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                Resource: "*"
+
+  CognitoIdentityPoolRoleAttachment:
+    Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+    Properties:
+      IdentityPoolId: !Ref CognitoIdentityPool # !Sub "${AWS::Region}:39b53048-8af5-475b-9c7e-24057d7f4b71"
+      Roles: 
+        unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn

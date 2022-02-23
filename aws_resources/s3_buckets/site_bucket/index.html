@@ -1,0 +1,297 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>PaperTool</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>  
+    <script src="assets/js/tagsinput.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.791.0.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/css/sticky-footer.css" rel="stylesheet">
+    <link href="assets/css/tagsinput.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <!-- Begin page content -->
+    <main role="main" class="container">
+
+        <!-- The Modal -->
+  <div class="modal fade" id="messageModal" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Message</h4>
+          <!-- <button type="button" class="close" data-dismiss="modal">&times;</button> -->
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button id="closeBtn" type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+         <!-- The Modal -->
+         <div class="modal fade" id="errorModal" data-backdrop="static" data-keyboard="false">
+          <div class="modal-dialog">
+            <div class="modal-content">
+            
+              <!-- Modal Header -->
+              <div class="modal-header">
+                <h4 class="modal-title">Message</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+              </div>
+              
+              <!-- Modal body -->
+              <div class="modal-body">
+      
+              </div>
+              
+              <!-- Modal footer -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+  <div class="modal fade" id="confirmModal" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Confirm</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+          By clicking CONFIRM below, your paper will be added to the working paper series and become available on a public server, with indexing by RePEc to follow. If you’d prefer not to go ahead, click CANCEL .
+
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button id="submitPaper" type="button" class="btn btn-primary" data-dismiss="modal"> CONFIRM</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="updateModal" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Confirm update</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+        
+        
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button id="updatePaper" type="button" class="btn btn-primary" data-dismiss="modal"> CONFIRM</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+<div class="card" style="top: 10px;">
+
+    <div class="card-body">
+     
+      
+        <h4 class="card-title text-center">
+            <img src="assets/img/paper-plane.svg" alt="logo" width="60" height="60"/>
+            PaperTool <sup>[Beta]</sup>
+        </h4>
+
+        <hr></hr>
+      
+      <div id="msg"></div>
+      <p>📝 Please fill the form below and submit your working paper for it to be automatically processed and added to <a href="http://repec.org/">RePEc</a>.
+        Alternatively, you can also update a previously submitted working paper. Note that all fields are mandatory.
+      </p>
+      
+      <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <a class="nav-item nav-link active" id="nav-upload-tab" data-toggle="tab" href="#nav-upload" role="tab" aria-controls="nav-upload" aria-selected="true">Upload</a>
+          <a class="nav-item nav-link" id="nav-update-tab" data-toggle="tab" href="#nav-update" role="tab" aria-controls="nav-update" aria-selected="false">Update</a>
+        </div>
+      </nav>
+
+      <br></br>
+
+
+<div class="tab-content" id="nav-tabContent">
+
+
+
+  <div class="tab-pane fade show active" id="nav-upload" role="tabpanel" aria-labelledby="nav-upload-tab">
+      <form id="wpForm" method="POST" novalidate>
+        <div class="form-group">
+          <label for="wpn">WP Series Number</label>
+          <input id="wpn" class="form-control" type="text" placeholder="" value="" readonly>
+          <small class="form-text text-muted">This would be your working paper series number.</small>
+        </div>
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="title">Title</label>
+          <input id="title" class="form-control" type="text" placeholder="" maxlength="250" pattern="^[a-zA-Z0-9,._:;\(\) -]+$" required>
+          <small class="form-text text-muted">Please enter the title of your paper.</small>
+          <div class="valid-feedback">Looks good!</div>
+        </div>
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="author">Author(s) details</label>
+          <div class="dynamic-wrap">
+            <div class="entry input-group">
+              <input type="text" class="form-control" name="fullname" placeholder="Full name" pattern="^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð ,.'-]+$" required>
+              <input type="text" class="form-control" name="affiliation" placeholder="Affiliation" pattern="^[a-zA-Z0-9,._: -/]+$" required>
+              <input type="email" id="email" class="form-control" name="email" placeholder="Email" required>
+              <!-- ^[A-Z][a-z]+[\s][A-Z]?[\s]?[A-Z][a-z]+$ -->
+              <span class="input-group-btn">
+                <button class="btn btn-primary btn-add" type="button">
+                        <span class="fa fa-plus"></span>
+                </button>
+              </span>
+              <div class="valid-feedback">Looks good!</div>
+              <div class="invalid-feedback">Please provide valid inputs.</div>
+            </div>
+        </div>
+        <small class="form-text text-muted">Click on + to add more authors.</small>
+        </div>
+        
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="abstract">Abstract</label>
+          <textarea class="form-control" rows="5" id="abstract" pattern="^[a-zA-Z0-9,._: -/]+$" required></textarea>
+          <small class="form-text text-muted">Please enter the abstract of your paper above.</small>
+          <div class="valid-feedback">Looks good!</div>
+          <!-- <div class="invalid-feedback">Please add the abstract of the paper.</div> -->
+        </div>
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="jel">JEL codes</label>
+            <a href="https://www.aeaweb.org/econlit/jelCodes.php?view=jel">
+            <i class="fa fa-question-circle" data-toggle="tooltip" data-placement="right" title="Click here for reference"></i>
+            </a>
+          <input type="text" class="form-control" id="jel" pattern="^([A-Z][1-9][0-9][,]?[ ]?)+$" required>
+          <small class="form-text text-muted">Enter the relevant JEL codes in a comma seperated manner.</small>
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Please enter valid JEL codes for your paper.</div>
+        </div>
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="keyword">Keywords</label>
+          <input type="text" class="form-control" id="keyword" data-role="tagsinput" required>
+          <small class="form-text text-muted">You can enter upto 5 keywords with max 30 characters each.</small>
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Please enter atleast one keyword.</div>
+        </div>
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="customFile">Paper</label>
+            <div class="custom-file" id="customFile" lang="es">
+                <input type="file" class="custom-file-input" id="inputFile" aria-describedby="fileHelp" accept="application/pdf,application/vnd.ms-excel" required>
+                <label class="custom-file-label" for="inputFile">
+                Choose file ..
+                </label>
+                <small class="form-text text-muted">Please upload a PDF file under 25 MB in size.</small>
+                <div class="valid-feedback">Looks good!</div>
+                <div class="invalid-feedback">Please upload a PDF version of your paper.</div>
+            </div>
+        </div>
+        <button id="confirmSubmission" type="button" class="btn btn-primary">
+          UPLOAD
+        </button>
+      </form>
+    </div>
+
+
+      
+  
+    <div class="tab-pane fade" id="nav-update" role="tabpanel" aria-labelledby="nav-update-tab">
+
+      <form id="wpFormUpdate" method="POST" novalidate>
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="wpn-update">WP Series Number</label>
+          <input id="wpn-update" class="form-control" type="text" placeholder="Please enter your working paper number" pattern="^[\d]{4}[-][\d]{2}$" required>
+          <small class="form-text text-muted">We will fetch additional information to help you verify your working paper.</small>
+        </div>
+        <div class="form-group">
+          <strong style="color: red;">* </strong>
+          <label for="updateFile">New Paper</label>
+            <div class="custom-file" id="updateFile" lang="es">
+                <input type="file" class="custom-file-input" id="inputUpdateFile" aria-describedby="fileHelp" accept="application/pdf,application/vnd.ms-excel" required>
+                <label class="custom-file-label" for="inputUpdateFile">
+                Choose new file ..
+                </label>
+                <small class="form-text text-muted">Please upload a PDF file under 25 MB in size.</small>
+                <div class="valid-feedback">Looks good!</div>
+                <div class="invalid-feedback">Please upload a PDF version of your paper.</div>
+            </div>
+        </div>
+        <button id="confirmUpdate" type="button" class="btn btn-primary">
+          UPDATE
+        </button>
+      </form>
+  
+  
+    </div>
+        
+      
+        
+  
+        </div>
+  
+  
+  
+      </div>
+
+
+
+
+    <div class="card-footer text-muted text-center">
+      <img src="assets/img/soda-logo.jpeg" alt="logo" width="60" height="60" style="border-radius: 50%;"/> Powered by <a href="https://www.monash.edu/business/soda-labs/home">SoDa Labs</a>
+      </div>
+  </div>
+
+    </main>
+    <script src="assets/js/wps.js"></script>  
+  </body>
+</html>

@@ -14,9 +14,32 @@ Metadata:
 #   c. Lambda Function bucket: econdept-mos-lambda
 Parameters:
   SiteBucketName:
+    Description: "Please enter your preferred name for the S3 bucket (Note: Bucket names MUST be unique across AWS and no Upper Case characters are allowed)"
     Type: String
   ArchiveCode:
+    Description: "Please enter your 3-digit RePEc code for the archive"
     Type: String
+
+Outputs:
+  SiteBucket:
+    Description: Name of the S3 site bucket.
+    Value: !Ref SiteBucket
+
+  WorkingPapersBucket:
+    Description: Name of the S3 working papers archive.
+    Value: !Ref WorkingPapersBucket
+  
+  LambdaFunctionBucket:
+    Description: Name of the Lambda function code respository.
+    Value: !Ref LambdaFunctionBucket
+
+  WebsiteURL:
+    Value: !GetAtt SiteBucket.WebsiteURL
+    Description: URL for the working papers website hosted on S3.
+
+  AWSRegion:
+    Value: !Ref AWS::Region
+    Description: Name of your current AWS region.
 
 Resources:
   # S3 bucket definitions
@@ -27,8 +50,8 @@ Resources:
     Description: Creating Amazon S3 bucket for hosting Working papers site
     Properties:
       BucketName: !Sub ${SiteBucketName}-${ArchiveCode}
-      VersioningConfiguration:
-        Status: Enabled
+      # VersioningConfiguration:
+      #   Status: Enabled
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
@@ -44,8 +67,8 @@ Resources:
     Description: Creating Amazon S3 bucket for storing working papers
     Properties:
       BucketName: !Sub ${SiteBucketName}-${ArchiveCode}-archive
-      VersioningConfiguration:
-        Status: Enabled
+      # VersioningConfiguration:
+      #   Status: Enabled
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
@@ -59,8 +82,8 @@ Resources:
       Description: Creating Amazon S3 bucket for storing UploadPaper Lambda function
       Properties:
         BucketName: !Sub ${SiteBucketName}-${ArchiveCode}-lambda # name of the S3 bucket
-        VersioningConfiguration:
-          Status: Enabled
+        # VersioningConfiguration:
+        #   Status: Enabled
         AccessControl: Private
       
   # S3 bucket policies
@@ -111,20 +134,3 @@ Resources:
             Principal:
               Service:
                 - cloudformation.amazonaws.com
-
-Outputs:
-  SiteBucket:
-    Description: Name of the S3 site bucket.
-    Value: !Ref SiteBucket
-
-  WorkingPapersBucket:
-    Description: Name of the S3 working papers archive.
-    Value: !Ref WorkingPapersBucket
-  
-  LambdaFunctionBucket:
-    Description: Name of the Lambda function code respository.
-    Value: !Ref LambdaFunctionBucket
-
-  WebsiteURL:
-    Value: !GetAtt SiteBucket.WebsiteURL
-    Description: URL for the working papers website hosted on S3.
