@@ -1,0 +1,16 @@
+// user needs to replace this
+
+// To the user: Please assign the appropriate values to the following variables.
+// NOTE: Only proceed with this step once you have run the CloudFormation scripts and have
+// obtained the outputs corresponding to variables below. 
+const config = {
+    archiveCode: "hey", //  your working paper archive code
+    seriesCode: "qwerty", // your working paper series code
+    siteBucket: "mydept-hey-site", // name of the site bucket in S3 e.g. monash-econ
+    workingPapersBucket: "mydept-hey-archive", // name of your working papers bucket
+    awsRegion: "ap-southeast-2", // name of your AWS region e.g. ap-southeast-2
+    repecHandle: "RePEc:hey:qwerty", // your RePEc handle e.g. RePEc:aaa:ssssss, where aaa is the archive code and ssssss is the series
+    templateUrl: "https://mydept-hey-archive.s3.ap-southeast-2.amazonaws.com/template/cover.png", // url for thr WP template
+    apiEndpoint: "https://hzop9oxj11.execute-api.ap-southeast-2.amazonaws.com/v1/upload", // eg. https://ogi4iv7vei.execute-api.ap-southeast-2.amazonaws.com/v1/upload
+    identityPoolId: "ap-southeast-2:e915459d-de0b-4438-9611-83bd0d849bb3" // your identity poolID from AWS Congito e.g. 39b53048-8af5-..
+}

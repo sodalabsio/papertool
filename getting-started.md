@@ -23,115 +23,59 @@ permalink: /getting-started/
 ## Prerequisites
 {: .d-inline-block }
 
-Important
-{: .label .label-yellow }
+<!-- Important
+{: .label .label-yellow } -->
 
-The following guide assumes that the user/maintainer has a basic understanding of **AWS** (particularly S3 and Lambda), **Python** and **HTML**. We will see below in detail where and how each component comes into play.
+The following guide assumes that the user/maintainer has a basic understanding of [AWS](https://aws.amazon.com/console/) (particularly [S3](https://s3.console.aws.amazon.com/) buckets), **Python** and some basic **HTML**. However, do not worry in case you have never used them before, we will guide you through and illustrate below where and how each component comes into play.
 
-## Overview
-
-<img src="/assets/images/schematic.png"/>
-
-
-The basic papertool blueprint (including relevant files) can be downloaded using
+To download papertool on your local machine, run:
 ```
 git clone papertool
 ```
 
-Once you have the `papertool` folder, please follow the instructions below.
+## Folder structure
+Once you have papertool on your machine, you will see the following main folders/files:
 
-## Using AWS Cloudformation
-
-1. In the AWS Console and CloudFormation service, create a stack using the repository's CreateS3Bucket.yaml template file. The file creates an S3 bucket called gwdoc-lambda-functions.
-2. In the S3 service, copy the test.zip file to the bucket.
-3. In CloudFormation, create another stack using the repository's CreateLambdaFunction.yaml template file. The file creates a Lambda function, REST API interface to it, and all required associated resources.
-
-## S3 Directory Stucture
-
-PaperTool requires two primary S3 buckets (folders):
-
-### Site bucket
-{: .fs-5 .text-purple-000}
-
-It contains the main PaperTool site files (HTML, JS and CSS) and is used for hosting the working paper series portal (specific to each lab/department).
-
-**Note**: Please assign the name of this bucket as per your lab/department name. E.g. If you set the bucket name as `econdept`, it will create a site under `http://econdept.s3-website-ap-southeast-2.amazonaws.com/`.
-
-The folder structure for the site bucket is as follows:
-
-```
-.
-├── metadata.json
-├── index.html
-├── assets
-│   ├── css
-│   ├── img
-│   ├── js
+```markdown
+./papertool
+├── aws_resources
+|   ├── cloudformation_templates
+|   |   ├── CreateLambdaFunction.yaml
+|   |   └── CreateS3Buckets.yaml
+|   └── s3_buckets
+|       ├── code_bucket
+|       ├── site_bucket
+|       └── working_papers_bucket
+...
 ```
 
-The main site is hosted completely *free of cost*.
+## Setting up
+1. [Log in](https://aws.amazon.com/console/) or create your AWS account
+2. Once you have access to the AWS Console, launch the [CloudFormation](https://console.aws.amazon.com/cloudformation) service. Then:
+    - Click on the `Create Stack`
+    - Enter name of the stack as **s3-stack**
+    - Under `Prerequisite - Prepare template` select `Template is ready`
+    - Under `Specify template` select `Upload a template file` and upload `CreateS3Buckets.yaml` file.
+    - Under `Specify stack details` please enter your working paper series details (such as RePEc codes for the series and archive)
+    - `Configure stack options`
+    - Review and finally click on `Create Stack`
+    - Wait till the `Status` shows `CREATE_COMPLETE`
+<!-- > Note: This creates a the neccesary S3 buckets to store your working papers and the code. -->
+<img src="/assets/images/cloudformation1.png"/>
+3. Navigate to [S3](https://s3.console.aws.amazon.com/) and your `CodeBucket` (Note: You can also directly access the created buckets from `Resources` under the Stack. The name of the bucket will be the one you entered earlier along with the suffix `"-code"`)
 
+4. Once you are inside the S3 `CodeBucket`, upload (or drag-and-drop):
+    - `layer.zip`
+    - `uploadWorkingPaper.zip`
 
-### Working papers repository
-{: .fs-5 .text-purple-000}
+5. Now once again under [CloudFormation](https://console.aws.amazon.com/cloudformation), create a new stack by repeating Step 2 with:
+    - Name of the stack as **lambda-stack**, and
+    - Upload `CreateLambdaAPI.yaml` as the template this time
 
-It contains the uploaded papers (as `PDF`) and their respective metadata (`RDF` or `REDIF` files). This is the core repository that will point to RePEc for automated archival of papers on their end.
+6. Copy the appropriate values from the Stack `Outputs` to `site_bucket/assets/js/settings.js` 
+6. As before, navigate to `Resources` under the newly created stack
+7. Go to your site bucket (ends in `"-site"`) and 
+7. That's it! You can now start uploading working papers on your site.
+<!-- > Note: This creates a Lambda function, REST API interface to it, and all required associated resources. -->
 
-
-
-sodalabs.io: Code for the SoDa WP series website. The file sodalabs.io/metadata.json contains all the working paper meta-data.
-soda-wps: Code for simulating directory listing on S3 as per RePEc's documentation.
-uploadWorkingPaper: AWS Lambda function which performs all the post-processing and serves as the backend. Contains all project dependencies.
-wkhtmltopdf: AWS Lambda layer for binaries required by the PyPDF2 package. PyPDF2 is used by uploadWorkingPaper for HTML to PDF conversion.
-api-gateway.md: Documentation for configuring an AWS API Gateway endpoint
-
-
-References
-RePEc step-by-step tutorial
-
-..
-
-## Lambda function
-
-At the heart of the working paper site is the ability to do postprocessing on the uploaded paper and store in within the working papers repository. We use AWS Lambda function `uploadWorkingPaper` to accomplish the same. Lambda functions are relatively inexpensive and are used only a need-by-need basis when a user uses the site.
-
-Simply upload the uploadWorkingPaper function in your personal/lab AWS Lambda interface.
-Additionally, the user might need to give necessary persmissions:
-- PUT/GET request on S3
-- 
-..
-
-## API Gateway
-
-Set up an API endpoint to route the data from the website to `uploadWorkingPaper` lambda function. The endpoint should be provided to `<site-bucket>/assets/js/wps.js`.
-1. Create a new endpoint: /upload
-2. Select Method: POST
-3. Make sure to enable CORS
-4. Select POST and under Integration Request:
-5. Select Lambda Function as the Integration Type
-6. Configure the following in Mapping template:
-```
-Content-Type: application/json
-Template:
-{
-    "content": {
-        #foreach( $token in $input.path('$').split('&') )
-            #set( $keyVal = $token.split('=') )
-            #set( $keyValSize = $keyVal.size() )
-            #if( $keyValSize >= 1 )
-                #set( $key = $util.urlDecode($keyVal[0]) )
-                #if( $keyValSize >= 2 )
-                    #set( $val = $util.urlDecode($keyVal[1]) )
-                #else
-                    #set( $val = '' )
-                #end
-                "$key": "$val"#if($foreach.hasNext),#end
-            #end
-        #end
-    }
-}
-```
-
-## Dependencies
-
-- wkhtmltopdf
+Navigate to the `Outputs` tab under the Stacks to access all the neccessary fields. 

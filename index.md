@@ -6,10 +6,10 @@ description: ""
 permalink: /
 ---
 
-# Simplifying the Working Papers machinery ⚙️🔩
+# Simplify the machinery ⚙️🔩
 {: .fs-7 }
 
-PaperTool is a highly customizable tool from SoDa Labs for any standard Working Paper Series that handles:
+PaperTool is a customizable tool from SoDa Labs for any standard Working Paper Series that handles:
 
 - Automatically adding Department or Lab specific front cover template(s),
 - Previewing the final paper,
