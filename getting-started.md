@@ -56,12 +56,12 @@ Once you have papertool on your machine, you will see the following main folders
     - Enter name of the stack (any name of your choosing)
     - Under `Prerequisite - Prepare template` select `Template is ready`
     - Under `Specify template` select `Upload a template file` and upload `CreateS3Buckets.yaml` file.
+    <img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/cloudformation1.png"/>
     - Under `Specify stack details` please enter your working paper series details (such as RePEc codes for the series and archive). **Important:** Please assign the name of this bucket as per your lab/department name. E.g. If you set the bucket name as `econdept`, it will create a site under `http://econdept.s3-website-ap-southeast-2.amazonaws.com/`.
     - `Configure stack options`
     - Review and finally click on `Create Stack`
     - Wait till the `Status` shows `CREATE_COMPLETE`
 <!-- > Note: This creates a the neccesary S3 buckets to store your working papers and the code. -->
-<img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/cloudformation.png"/>
 3. Navigate to [S3](https://s3.console.aws.amazon.com/) and into your `CodeBucket` (Note: You can also directly access the created buckets from `Resources` under the Stack. The name of the bucket will be the one you entered earlier along with the suffix `"-code"`)
 
 4. Once you are inside the S3 `CodeBucket`, upload (or drag-and-drop) the contents from `s3_buckets/code_bucket/`. The files are:
