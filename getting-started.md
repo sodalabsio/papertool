@@ -33,6 +33,8 @@ To download papertool on your local machine, run:
 git clone https://github.com/sodalabsio/papertool.git
 ```
 
+You will need valid RePEc Archive and Series codes associated with you working paper series. Please check out the [RePEc step-by-step](https://ideas.repec.org/stepbystep.html) for the same.
+
 ## Folder structure
 Once you have papertool on your machine, you will see the following main folders/files:
 
@@ -85,7 +87,3 @@ Once you have papertool on your machine, you will see the following main folders
 8. And that's it! You can now start uploading working papers on your site (refer to your `WebsiteURL`)
 
 Incase you have any questions please refer to our FAQ page.
-
-## References
-- [RePEc step-by-step](https://ideas.repec.org/stepbystep.html)
-- [What is Amazon S3?](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html)
