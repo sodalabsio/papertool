@@ -78,10 +78,14 @@ Once you have papertool on your machine, you will see the following main folders
   - Rename the `aaa` and `ssssss` folders to your `ArchiveCode` and `SeriesCode` respectively
   - Replace "aaa" in both `aaaarch.rdf` and `aaaseri.rdf` with your `ArchiveCode`
   - Fill the rdf files with appropriate working paper information. **Important:** The `URL` in `aaaarch.rdf` should be the `RePEcArchiveURL` as it links your archive to RePEc
-  - Open `RePEc/aaa/index.html` and replace ssssss with your `SeriesCode`
+  - Open `RePEc/aaa/index.html` and replace ssssss with your `SeriesCode` and the names of redif files
   - Replace `s3_buckets/working_papers_bucket/template/cover.png` with your own template. **Important:** The template should be identical in dimensions (2487 x 3516 px) and layout.
   - Finally copy the contents of `s3_buckets/working_papers_bucket/` to your actual S3 `WorkingPapersBucket`
   
 8. And that's it! You can now start uploading working papers on your site (refer to your `WebsiteURL`)
 
 Incase you have any questions please refer to our FAQ page.
+
+## References
+- [RePEc step-by-step](https://ideas.repec.org/stepbystep.html)
+- [What is Amazon S3?](https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html)
