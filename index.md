@@ -6,7 +6,7 @@ description: ""
 permalink: /
 ---
 
-# Simplify the machinery ⚙️🔩
+# Simplify the paper machinery ⚙️🔩
 {: .fs-7 }
 
 PaperTool is a customizable tool from SoDa Labs for any standard Working Paper Series that handles:

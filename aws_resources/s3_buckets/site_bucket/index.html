@@ -77,20 +77,17 @@
     </div>
 
     <div class="modal fade" id="confirmModal" data-backdrop="static" data-keyboard="false">
-      <div class="modal-dialog">
+      <div class="modal-dialog" style="max-width: 54.23% !important">
         <div class="modal-content">
 
           <!-- Modal Header -->
           <div class="modal-header">
-            <h4 class="modal-title">Confirm</h4>
+            <h4 class="modal-title">Preview and Confirm</h4>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
           </div>
 
           <!-- Modal body -->
-          <div class="modal-body">
-            By clicking CONFIRM below, your paper will be added to the working paper series and become available on a
-            public server, with indexing by RePEc to follow. If you’d prefer not to go ahead, click CANCEL .
-
+          <div id="preview" class="modal-body">
           </div>
 
           <!-- Modal footer -->
@@ -159,7 +156,7 @@
           </div>
         </nav>
         <br></br>
-        
+
         <div class="tab-content" id="nav-tabContent">
           <div class="tab-pane fade show active" id="nav-upload" role="tabpanel" aria-labelledby="nav-upload-tab">
             <form id="wpForm" method="POST" novalidate>
@@ -171,8 +168,7 @@
               <div class="form-group">
                 <strong style="color: red;">* </strong>
                 <label for="title">Title</label>
-                <input id="title" class="form-control" type="text" placeholder="" maxlength="250"
-                  pattern="^[a-zA-Z0-9,._:;\(\) -]+$" required>
+                <input id="title" class="form-control" type="text" placeholder="" required>
                 <small class="form-text text-muted">Please enter the title of your paper.</small>
                 <div class="valid-feedback">Looks good!</div>
               </div>

@@ -43,8 +43,6 @@ The main site is hosted completely *free of cost*.
 
 It contains the uploaded papers (as `PDF`) and their respective metadata (`RDF` or `REDIF` files). This is the core repository that will point to RePEc for automated archival of papers on their end.
 
-
-
 sodalabs.io: Code for the SoDa WP series website. The file sodalabs.io/metadata.json contains all the working paper meta-data.
 soda-wps: Code for simulating directory listing on S3 as per RePEc's documentation.
 uploadWorkingPaper: AWS Lambda function which performs all the post-processing and serves as the backend. Contains all project dependencies.

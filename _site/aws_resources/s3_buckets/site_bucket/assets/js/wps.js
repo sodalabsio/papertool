@@ -13,6 +13,7 @@ $(document).ready(function () {
   const workingPaperBucket = config.workingPapersBucket;
   const awsRegion = config.awsRegion;
   const IdentityPoolId = config.identityPoolId;
+  const templateUrl = config.templateUrl;
   const formatNumber = n => ("0" + n).slice(-2);
 
   function triggerError(msg) {
@@ -99,7 +100,110 @@ $(document).ready(function () {
         triggerError(msg)
       }
       else {
+        // $('#confirmModal').modal('show');
+        // clear any content (previously generated)
+        $('#confirmModal .modal-body').html("")
+        let authorData = [];
+        let affiliation = "";
+        $('.dynamic-wrap input').each(function (index) { authorData.push($(this).val()) });
+
+        let authors = []
+        for (var i = 0; i < authorData.length; i += 3) {
+          authors.push(authorData[i])
+          affiliation += `${authorData[i]}: ${authorData[i + 1]} (email: ${authorData[i + 2]})`
+          if (i != authorData.length - 1) { affiliation += "; " }
+          else { affiliation += "." }
+        }
+        if (authors.length > 1) {
+          authors = authors.slice(0, -1).join(',') + ' and ' + authors.slice(-1);
+        }
+        else {
+          authors = authors[0]
+        }
+        let wpTemplate = `
+                       <head>
+                         <meta charset="utf-8">
+                         <link rel="preconnect" href="https://fonts.gstatic.com">
+                         <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+                         <style>
+                         img.template {
+                             height: 1500px
+                         }
+                         .box {
+                           position: relative;
+                         }
+                         div.paper {
+                             position: absolute;
+                             top: 290px;
+                             left: 125px;
+                             width: 823px;
+                             max-width: 823px;
+                         }
+                         div.paper p {
+                             color: #414141;
+                             font-family: 'Roboto Condensed';
+                         }
+                         p.title {
+                             border-style: solid none solid none;
+                             border-width: thin;
+                             font-size: 18pt;
+                             font-weight: 900;
+                             text-align: center;
+                             padding-top: 25px;
+                             padding-bottom: 25px;
+                         }
+                         p.paper-no {
+                             font-size: 15pt;
+                             text-align: center;
+                         }
+                         p.author {
+                             font-size: 18pt;
+                             text-align: center;
+                         }
+                         p.abstract-fixed {
+                             font-size: 15pt;
+                         }
+                         p.abstract {
+                             font-size: 15pt;
+                             text-align: justify;
+                         }
+                         p.keywords {
+                             font-size: 15pt;
+                             text-align: left;
+                         }
+                         p.jel-codes {
+                             font-size: 15pt;
+                             text-align: left;
+                         }
+                         p.affiliation {
+                             font-size: 15pt;
+                             text-align: left;
+                         }
+                         </style>
+                       </head>
+                       <body>
+                       👉 Here is a preview of the front cover generated for your working paper.
+                       <br></br>
+                         <div class="box">
+                           <img class="template" src="${templateUrl}" alt="econ wp background"/>
+                           <div class="paper">
+                           <p class="title">${$('#title').val()}</p>
+                           <p class="paper-no">Discussion Paper no. ${$('#wpn').val()}</p>
+                           <p class="author"><b>${authors}</b></p>
+                           <p class="abstract-fixed"><b>Abstract:</b></p>
+                           <p class="abstract">${$('#abstract').val()}</p>
+                           <p class="keywords"><b>Keywords: </b>${$("#keyword").tagsinput('items').join(', ')}</p>
+                           <p class="jel-codes"><b>JEL Classification: </b>${$('#jel').val()}</p>
+                           <p class="affiliation">${affiliation}</p>
+                           </div>
+                           </div>
+                           <br></br>
+                           By clicking <b>CONFIRM</b> below, your paper will be added to the Monash Econ working paper series and become available on a public server, with indexing by RePEc to follow. If you’d prefer not to go ahead, click <b>CANCEL</b> to return to the form and make edits as required. 
+                         </body>
+                     `
+        $('#confirmModal .modal-body').prepend(wpTemplate)
         $('#confirmModal').modal('show');
+
       }
     }
   });
@@ -219,7 +323,7 @@ $(document).ready(function () {
             site_bucket: config.siteBucket,
             working_paper_bucket: config.workingPapersBucket,
             repec_handle: config.repecHandle, // 'RePEc:mos:moswps'
-            template_url: config.templateUrl,
+            template_url: templateUrl,
             region: awsRegion,
             // file: base64,
             mode: 'upload'
@@ -266,8 +370,6 @@ $(document).ready(function () {
     $('button').prop('disabled', true);
     $('#confirmUpdate').prepend(`<span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`);
     console.log('Processing ..')
-
-
     let base64;
     let author = [];
     // var form = document.getElementById('wpForm');
@@ -298,7 +400,7 @@ $(document).ready(function () {
             site_bucket: config.siteBucket,
             working_paper_bucket: config.workingPapersBucket,
             repec_handle: config.repecHandle, // 'RePEc:mos:moswps'
-            template_url: config.templateUrl,
+            template_url: templateUrl,
             region: awsRegion,
             // file: base64,
             mode: 'update'

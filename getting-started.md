@@ -56,7 +56,7 @@ Once you have papertool on your machine, you will see the following main folders
     - Enter name of the stack (any name of your choosing)
     - Under `Prerequisite - Prepare template` select `Template is ready`
     - Under `Specify template` select `Upload a template file` and upload `CreateS3Buckets.yaml` file.
-    - Under `Specify stack details` please enter your working paper series details (such as RePEc codes for the series and archive)
+    - Under `Specify stack details` please enter your working paper series details (such as RePEc codes for the series and archive). IMPORTANT: Please assign the name of this bucket as per your lab/department name. E.g. If you set the bucket name as `econdept`, it will create a site under `http://econdept.s3-website-ap-southeast-2.amazonaws.com/`.
     - `Configure stack options`
     - Review and finally click on `Create Stack`
     - Wait till the `Status` shows `CREATE_COMPLETE`
@@ -71,10 +71,17 @@ Once you have papertool on your machine, you will see the following main folders
 5. Now once again under [CloudFormation](https://console.aws.amazon.com/cloudformation), create a new stack by repeating Step 2 and uploading `CreateLambdaAPI.yaml` as the template this time.
   - Make sure to click on "I acknowledge that AWS CloudFormation might create IAM resources" before hitting  `Create Stack`
 
-6. Copy the appropriate values from the Stack `Outputs` to `s3_buckets/site_bucket/assets/js/settings.js` 
-7. Copy contents of `s3_buckets/site_bucket/` and `s3_buckets/working_papers_bucket/` to `SiteBucket` and `WorkingPapersBucket` respectively.
-  - Make sure you rename the RePEc archive and series names properly along with the RDF files 
-8. That's it! You can now start uploading working papers on your site (refer to `WebsiteURL`)
-<!-- > Note: This creates a Lambda function, REST API interface to it, and all required associated resources. -->
+6. Editing site bucket:
+  - Enter (copy) the appropriate values from the Stack `Outputs` to `s3_buckets/site_bucket/assets/js/settings.js` 
+  - Upload the contents of `s3_buckets/site_bucket/` to your `SiteBucket`
+7. Editing working papers bucket:
+  - Rename the `aaa` and `ssssss` folders to your `ArchiveCode` and `SeriesCode` respectively
+  - Replace "aaa" in both `aaaarch.rdf` and `aaaseri.rdf` with your `ArchiveCode`
+  - Fill the rdf files with appropriate working paper information. IMPORTANT: The `URL` in `aaaarch.rdf` should be the `RePEcArchiveURL` as it links your archive to RePEc
+  - Open `RePEc/aaa/index.html` and replace ssssss with your `SeriesCode`
+  - Replace `s3_buckets/working_papers_bucket/template/cover.png` with your own template. IMPORTANT: The template should be identical in dimensions (2487 x 3516 px) and layout.
+  - Finally copy the contents of `s3_buckets/working_papers_bucket/` to your actual S3 `WorkingPapersBucket`
+  
+8. And that's it! You can now start uploading working papers on your site (refer to your `WebsiteURL`)
 
 Incase you have any questions please refer to our FAQ page.
