@@ -167,6 +167,35 @@ Resources:
               - Arn
             - "/invocations"
 
+  OptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      RestApiId: !Ref ApiGatewayRestApi
+      ResourceId: !Ref ApiGatewayResource
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,DELETE,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
   ApiGatewayDeployment:
     Type: "AWS::ApiGateway::Deployment"
     Properties:
@@ -174,6 +203,7 @@ Resources:
       StageName: "v1"
     DependsOn:
       - ApiGatewayMethod
+      - OptionsMethod
 
   # AWS Cognito
   CognitoIdentityPool:
@@ -213,6 +243,6 @@ Resources:
   CognitoIdentityPoolRoleAttachment:
     Type: "AWS::Cognito::IdentityPoolRoleAttachment"
     Properties:
-      IdentityPoolId: !Ref CognitoIdentityPool # !Sub "${AWS::Region}:39b53048-8af5-475b-9c7e-24057d7f4b71"
+      IdentityPoolId: !Ref CognitoIdentityPool
       Roles: 
         unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn

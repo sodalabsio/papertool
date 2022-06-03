@@ -40,7 +40,7 @@ Once you have papertool on your machine, you will see the following main folders
 ./papertool
 ├── aws_resources
 |   ├── cloudformation_templates
-|   |   ├── CreateLambdaFunction.yaml
+|   |   ├── CreateLambdaAPI.yaml
 |   |   └── CreateS3Buckets.yaml
 |   └── s3_buckets
 |       ├── code_bucket
@@ -53,7 +53,7 @@ Once you have papertool on your machine, you will see the following main folders
 1. [Log in](https://aws.amazon.com/console/) or create your AWS account
 2. Once you have access to the AWS Console, launch the [CloudFormation](https://console.aws.amazon.com/cloudformation) service. Then:
     - Click on the `Create Stack`
-    - Enter name of the stack as **s3-stack**
+    - Enter name of the stack (any name of your choosing)
     - Under `Prerequisite - Prepare template` select `Template is ready`
     - Under `Specify template` select `Upload a template file` and upload `CreateS3Buckets.yaml` file.
     - Under `Specify stack details` please enter your working paper series details (such as RePEc codes for the series and archive)
@@ -62,20 +62,19 @@ Once you have papertool on your machine, you will see the following main folders
     - Wait till the `Status` shows `CREATE_COMPLETE`
 <!-- > Note: This creates a the neccesary S3 buckets to store your working papers and the code. -->
 <img src="/assets/images/cloudformation1.png"/>
-3. Navigate to [S3](https://s3.console.aws.amazon.com/) and your `CodeBucket` (Note: You can also directly access the created buckets from `Resources` under the Stack. The name of the bucket will be the one you entered earlier along with the suffix `"-code"`)
+3. Navigate to [S3](https://s3.console.aws.amazon.com/) and into your `CodeBucket` (Note: You can also directly access the created buckets from `Resources` under the Stack. The name of the bucket will be the one you entered earlier along with the suffix `"-code"`)
 
-4. Once you are inside the S3 `CodeBucket`, upload (or drag-and-drop):
+4. Once you are inside the S3 `CodeBucket`, upload (or drag-and-drop) the contents from `s3_buckets/code_bucket/`. The files are:
     - `layer.zip`
     - `uploadWorkingPaper.zip`
 
-5. Now once again under [CloudFormation](https://console.aws.amazon.com/cloudformation), create a new stack by repeating Step 2 with:
-    - Name of the stack as **lambda-stack**, and
-    - Upload `CreateLambdaAPI.yaml` as the template this time
+5. Now once again under [CloudFormation](https://console.aws.amazon.com/cloudformation), create a new stack by repeating Step 2 and uploading `CreateLambdaAPI.yaml` as the template this time.
+  - Make sure to click on "I acknowledge that AWS CloudFormation might create IAM resources" before hitting  `Create Stack`
 
-6. Copy the appropriate values from the Stack `Outputs` to `site_bucket/assets/js/settings.js` 
-6. As before, navigate to `Resources` under the newly created stack
-7. Go to your site bucket (ends in `"-site"`) and 
-7. That's it! You can now start uploading working papers on your site.
+6. Copy the appropriate values from the Stack `Outputs` to `s3_buckets/site_bucket/assets/js/settings.js` 
+7. Copy contents of `s3_buckets/site_bucket/` and `s3_buckets/working_papers_bucket/` to `SiteBucket` and `WorkingPapersBucket` respectively.
+  - Make sure you rename the RePEc archive and series names properly along with the RDF files 
+8. That's it! You can now start uploading working papers on your site (refer to `WebsiteURL`)
 <!-- > Note: This creates a Lambda function, REST API interface to it, and all required associated resources. -->
 
-Navigate to the `Outputs` tab under the Stacks to access all the neccessary fields. 
+Incase you have any questions please refer to our FAQ page.

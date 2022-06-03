@@ -47,7 +47,7 @@ Outputs:
     Description: URL for the working papers website hosted on S3.
   
   RePEcArchiveURL:
-    Value: !GetAtt WorkingPapersBucket.WebsiteURL
+    Value: !Sub ${WorkingPapersBucket.WebsiteURL}/RePEc/${ArchiveCode}
     Description: URL for RePEc archive hosted on S3 that RePEc requires.
 
   AWSRegion:

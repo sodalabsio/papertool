@@ -7,12 +7,6 @@ Metadata:
 # Custom params that the user can define at the time of stack creation
 # RePEc:aaa:ssssss, where aaa is the archive code and ssssss is the series
 # code. NOTE: Ensure that bucket names are unique across AWS.
-# Rules:
-# 1. No uppercase letters. Only lower case and hyphen.
-# 2. E.g. if SiteBuckeName is provided as `econdept` and ArchiveCode is `mos`,
-#   a. Site bucket: econdept-mos
-#   b. Working Paper bucket: econdept-mos-archive
-#   c. Lambda Function bucket: econdept-mos-lambda
 Parameters:
   SiteBucketName:
     Description: "Please enter your preferred name for the S3 bucket. This will be part of the name for your working paper website (Note: Bucket names MUST be unique across AWS and no Upper Case characters are allowed)"
@@ -53,7 +47,7 @@ Outputs:
     Description: URL for the working papers website hosted on S3.
   
   RePEcArchiveURL:
-    Value: !GetAtt WorkingPapersBucket.WebsiteURL
+    Value: !Sub ${WorkingPapersBucket.WebsiteURL}/RePEc/${ArchiveCode}
     Description: URL for RePEc archive hosted on S3 that RePEc requires.
 
   AWSRegion:
@@ -152,6 +146,7 @@ Resources:
           -
             Action:
               - s3:GetObject
+              - s3:PutObject
             Effect: Allow
             Resource:
               - !Sub arn:aws:s3:::${SiteBucket}/*
