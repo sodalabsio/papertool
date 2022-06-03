@@ -23,7 +23,7 @@ permalink: /getting-started/
 ## Prerequisites
 {: .d-inline-block }
 
-<!-- Important
+<!-- **Important**
 {: .label .label-yellow } -->
 
 The following guide assumes that the user/maintainer has a basic understanding of [AWS](https://aws.amazon.com/console/) (particularly [S3](https://s3.console.aws.amazon.com/) buckets), **Python** and some basic **HTML**. However, do not worry in case you have never used them before, we will guide you through and illustrate below where and how each component comes into play.
@@ -56,7 +56,7 @@ Once you have papertool on your machine, you will see the following main folders
     - Enter name of the stack (any name of your choosing)
     - Under `Prerequisite - Prepare template` select `Template is ready`
     - Under `Specify template` select `Upload a template file` and upload `CreateS3Buckets.yaml` file.
-    - Under `Specify stack details` please enter your working paper series details (such as RePEc codes for the series and archive). IMPORTANT: Please assign the name of this bucket as per your lab/department name. E.g. If you set the bucket name as `econdept`, it will create a site under `http://econdept.s3-website-ap-southeast-2.amazonaws.com/`.
+    - Under `Specify stack details` please enter your working paper series details (such as RePEc codes for the series and archive). **Important:** Please assign the name of this bucket as per your lab/department name. E.g. If you set the bucket name as `econdept`, it will create a site under `http://econdept.s3-website-ap-southeast-2.amazonaws.com/`.
     - `Configure stack options`
     - Review and finally click on `Create Stack`
     - Wait till the `Status` shows `CREATE_COMPLETE`
@@ -77,9 +77,9 @@ Once you have papertool on your machine, you will see the following main folders
 7. Editing working papers bucket:
   - Rename the `aaa` and `ssssss` folders to your `ArchiveCode` and `SeriesCode` respectively
   - Replace "aaa" in both `aaaarch.rdf` and `aaaseri.rdf` with your `ArchiveCode`
-  - Fill the rdf files with appropriate working paper information. IMPORTANT: The `URL` in `aaaarch.rdf` should be the `RePEcArchiveURL` as it links your archive to RePEc
+  - Fill the rdf files with appropriate working paper information. **Important:** The `URL` in `aaaarch.rdf` should be the `RePEcArchiveURL` as it links your archive to RePEc
   - Open `RePEc/aaa/index.html` and replace ssssss with your `SeriesCode`
-  - Replace `s3_buckets/working_papers_bucket/template/cover.png` with your own template. IMPORTANT: The template should be identical in dimensions (2487 x 3516 px) and layout.
+  - Replace `s3_buckets/working_papers_bucket/template/cover.png` with your own template. **Important:** The template should be identical in dimensions (2487 x 3516 px) and layout.
   - Finally copy the contents of `s3_buckets/working_papers_bucket/` to your actual S3 `WorkingPapersBucket`
   
 8. And that's it! You can now start uploading working papers on your site (refer to your `WebsiteURL`)
