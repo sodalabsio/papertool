@@ -20,9 +20,7 @@ aux_links:
     - "https://www.monash.edu/business/research/our-research/soda-labs"
 # logo: "/assets/images/soda-logo.jpeg"
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  PaperTool is a DIY template from SoDa Labs for setting up your own end-to-end working paper site.
 # fix for css not rendering in deployed mode (production)
 baseurl: /
 url: https://sodalabsio.github.io
