@@ -31,6 +31,7 @@ github_username:  satyaborg
 
 # Build settings
 markdown: kramdown
+# fix for css not rendering in deployed mode (production)
 remote_theme: just-the-docs/just-the-docs
 plugins:
   - jekyll-feed

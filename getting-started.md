@@ -30,7 +30,7 @@ The following guide assumes that the user/maintainer has a basic understanding o
 
 To download papertool on your local machine, run:
 ```
-git clone papertool
+git clone https://github.com/sodalabsio/papertool.git
 ```
 
 ## Folder structure
@@ -61,7 +61,7 @@ Once you have papertool on your machine, you will see the following main folders
     - Review and finally click on `Create Stack`
     - Wait till the `Status` shows `CREATE_COMPLETE`
 <!-- > Note: This creates a the neccesary S3 buckets to store your working papers and the code. -->
-<img src="/assets/images/cloudformation1.png"/>
+<img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/cloudformation.png"/>
 3. Navigate to [S3](https://s3.console.aws.amazon.com/) and into your `CodeBucket` (Note: You can also directly access the created buckets from `Resources` under the Stack. The name of the bucket will be the one you entered earlier along with the suffix `"-code"`)
 
 4. Once you are inside the S3 `CodeBucket`, upload (or drag-and-drop) the contents from `s3_buckets/code_bucket/`. The files are:
