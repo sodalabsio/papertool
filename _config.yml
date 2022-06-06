@@ -16,11 +16,11 @@
 title: PaperTool
 email: satya.borgohain@monash.com
 aux_links:
-  "Powered by SoDa Labs":
+  "Powered by Monash SoDa Labs":
     - "https://www.monash.edu/business/research/our-research/soda-labs"
-# logo: "/assets/images/soda-logo.jpeg"
+logo: "/assets/images/papertool-logo.png"
 description: >- # this means to ignore newlines until "baseurl:"
-  PaperTool is a DIY template from SoDa Labs for setting up your own end-to-end working paper site.
+  PaperTool is a DIY tool from SoDa Labs for setting up your own end-to-end working paper site.
 # fix for css not rendering in deployed mode (production)
 baseurl: /
 url: https://sodalabsio.github.io
