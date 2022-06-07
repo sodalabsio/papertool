@@ -86,4 +86,6 @@ Once you have papertool on your machine, you will see the following main folders
   
 8. And that's it! You can now start uploading working papers on your site (refer to your `WebsiteURL`)
 
+<img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/website.png"/>
+
 Incase you have any questions please refer to our FAQ page.

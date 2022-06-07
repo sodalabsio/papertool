@@ -20,9 +20,10 @@ PaperTool is a customizable tool from [Monash SoDa Labs](https://www.monash.edu/
 It's a fully cloud-based solution to one of the most common problems plaguing academics: Dissemination of working papers with minimal hassle and cost. Setup your working papers site within minutes!
 
 <div class="code-example" style="background-color: #f5f6fa" markdown="1">
-Important 👇
-{: .label .label-green } 
-We offer PaperTool both as a DIY open source tool for anyone to setup a working paper series on their own _and_ also as a one-time paid service from SoDa Labs to manage and set it up for you. Please feel free to reach us at <a href="mailto:SoDaLabs@monash.edu">SoDaLabs@monash.edu</a> should you require this service.
+<!-- Important 👇
+{: .label .label-green }  -->
+
+We offer PaperTool both as a DIY open source tool for anyone to setup a working paper series on their own and also as a paid service from SoDa Labs. Please feel free to reach us at <a href="mailto:SoDaLabs@monash.edu">SoDaLabs@monash.edu</a> should you require this service.
 </div>
 
 {: .fs-6 .fw-300 }
