@@ -17,11 +17,11 @@ PaperTool is a customizable tool from [Monash SoDa Labs](https://www.monash.edu/
 - Updating previous working papers, and
 - Archiving papers on [RePEc](http://repec.org/)
 
-It's a fully cloud-based solution to one of the most common problems plaguing academics: Dissemination of working papers with minimal hassle and cost. Setup your working papers site within minutes!
+It's a fully cloud-based solution to one of the most common problems plaguing academics: Dissemination of working papers with minimal hassle and cost. Setup your working papers site within minutes! 
+
+**See an example**: Check out the [Monash SoDa Labs working paper series](https://ideas.repec.org/s/ajr/sodwps.html) at RePeC, and be sure to inspect a PDF of any working paper.
 
 <div class="code-example" style="background-color: #f5f6fa" markdown="1">
-<!-- Important 👇
-{: .label .label-green }  -->
 
 We offer PaperTool both as a DIY open source tool for anyone to setup a working paper series on their own and also as a paid service from SoDa Labs. Please feel free to reach us at <a href="mailto:SoDaLabs@monash.edu">SoDaLabs@monash.edu</a> should you require this service.
 </div>
