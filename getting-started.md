@@ -85,7 +85,6 @@ Once you have papertool on your machine, you will see the following main folders
   - Finally copy the contents of `s3_buckets/working_papers_bucket/` to your actual S3 `WorkingPapersBucket`
   
 8. And that's it! You can now start uploading working papers on your site (refer to your `WebsiteURL`)
+  <img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/website.png"/>
 
-<img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/website.png"/>
-
-Incase you have any questions please refer to our FAQ page.
+Incase you have any questions please refer to our [FAQ](/faq) page.
