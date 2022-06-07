@@ -13,5 +13,5 @@ If you'd like:
 - To report an issue, or suggest a feature-request, please do so [here](https://github.com/sodalabsio/papertool/issues) by raising a git issue
 - To get involved with developing PaperTool, please feel welcome to do so by forking, developing, and then creating a pull request for our team to verify/merge your new features
 
-For more information on github workflows, please check out [this](https://docs.github.com/en/issues/tracking-your-work-with-issues/quickstart) guide
+For more information on github workflows, please check out [this](https://docs.github.com/en/issues/tracking-your-work-with-issues/quickstart) guide.
 
