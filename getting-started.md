@@ -33,7 +33,9 @@ To download papertool on your local machine, run:
 git clone https://github.com/sodalabsio/papertool.git
 ```
 
-You will need valid RePEc Archive and Series codes associated with you working paper series. Please check out the [RePEc step-by-step](https://ideas.repec.org/stepbystep.html) for the same.
+Alternatively, you could also fork the repository to your personal github account and work from there.
+
+Before starting with PaperTool, you will need valid three-letter RePEc Archive code (aaa) and a six-letter Series code (ssssss) associated with your working paper series. Please check out the [RePEc step-by-step](https://ideas.repec.org/stepbystep.html) for the same.
 
 ## Folder structure
 Once you have papertool on your machine, you will see the following main folders/files:
