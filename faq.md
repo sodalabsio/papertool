@@ -8,7 +8,7 @@ permalink: /faq/
 
 ## FAQ
 - Where can I find the values for `settings.json`?  
-    Navigate to [CloudFormation](https://console.aws.amazon.com/cloudformation) > Stacks > `your-stack-name` > outputs. You will find all the values along with their description to help you identify each field. Refer to sample outputs below:
-
-<img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/stackout1.png"/>
-<img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/stackout2.png"/>
+   CloudFormation, select the Lambda stack you created, and navigate to the `Outputs` tab on the right hand side of the page. You may need to expand the size of your window to see this tab.
+  <!-- <img src="https://raw.githubusercontent.com/sodalabsio/papertool/main/assets/images/cloudformation2.png"> -->
+    <img src="/assets/images/cloudformation_outputs.png">
+  - You will see a table with 2 rows, each with a `Key` and `Value`. These are the values you can add to `settings.json`.
