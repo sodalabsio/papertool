@@ -123,8 +123,6 @@ $(document).ready(function () {
         let wpTemplate = `
                        <head>
                          <meta charset="utf-8">
-                         <link rel="preconnect" href="https://fonts.gstatic.com">
-                         <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
                          <style>
                          img.template {
                              height: 1500px
@@ -141,7 +139,7 @@ $(document).ready(function () {
                          }
                          div.paper p {
                              color: #414141;
-                             font-family: 'Roboto Condensed';
+                             font-family: 'Source Code Pro', monospace;
                          }
                          p.title {
                              border-style: solid none solid none;
