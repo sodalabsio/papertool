@@ -2,7 +2,7 @@ $(document).ready(function () {
   // please provide the appropriate values to the following variables
   // load variables
   const date = new Date();
-  let wpn = ""
+  let suggestedWpn = ""
   const maxAllowedSize = 25 * 1024 * 1024; // 5 MB
   let currentYear = date.getFullYear();
   let currentPapers = 0;
@@ -50,13 +50,14 @@ $(document).ready(function () {
     else {
       currentPapers = data.Contents.length / 2 // ignoring RDF files
       if (currentPapers > 0) { // if there are papers
-        wpn = currentYear + "-" + formatNumber(currentPapers + 1) // note: only handles 01-99
+        suggestedWpn = currentYear + "-" + formatNumber(currentPapers + 1) // note: only handles 01-99
       }
       else {
-        wpn = currentYear + "-" + "01"
+        suggestedWpn = currentYear + "-" + "01"
       }
-      $("#wpn").attr("placeholder", wpn); // set the placeholder
-      $("#wpn").val(wpn)
+      // Set as placeholder and value, but now user can edit it
+      $("#wpn").attr("placeholder", suggestedWpn);
+      $("#wpn").val(suggestedWpn)
     }
   });
 
@@ -100,7 +101,9 @@ $(document).ready(function () {
         triggerError(msg)
       }
       else {
-        // $('#confirmModal').modal('show');
+        // Get the user-provided WPN value
+        let userWpn = $('#wpn').val();
+        
         // clear any content (previously generated)
         $('#confirmModal .modal-body').html("")
         let authorData = [];
@@ -186,7 +189,7 @@ $(document).ready(function () {
                            <img class="template" src="${templateUrl}" alt="econ wp background"/>
                            <div class="paper">
                            <p class="title">${$('#title').val()}</p>
-                           <p class="paper-no">Discussion Paper no. ${$('#wpn').val()}</p>
+                           <p class="paper-no">Discussion Paper no. ${userWpn}</p>
                            <p class="author"><b>${authors}</b></p>
                            <p class="abstract-fixed"><b>Abstract:</b></p>
                            <p class="abstract">${$('#abstract').val()}</p>
@@ -196,12 +199,11 @@ $(document).ready(function () {
                            </div>
                            </div>
                            <br></br>
-                           By clicking <b>CONFIRM</b> below, your paper will be added to the Monash Econ working paper series and become available on a public server, with indexing by RePEc to follow. If you’d prefer not to go ahead, click <b>CANCEL</b> to return to the form and make edits as required. 
+                           By clicking <b>CONFIRM</b> below, your paper will be added to the Monash Econ working paper series and become available on a public server, with indexing by RePEc to follow. If you'd prefer not to go ahead, click <b>CANCEL</b> to return to the form and make edits as required. 
                          </body>
                      `
         $('#confirmModal .modal-body').prepend(wpTemplate)
         $('#confirmModal').modal('show');
-
       }
     }
   });
@@ -215,14 +217,13 @@ $(document).ready(function () {
       form.classList.add('was-validated');
     }
     else {
-
       fileSize = $('#inputUpdateFile')[0].files[0].size
       if (fileSize > maxAllowedSize) {
         let msg = `<p><strong>File too large.</strong></p><p>Please upload a PDF file which is less than 25 MB in size.</p>`
         triggerError(msg)
       }
       else {
-        wpn = $('#wpn-update').val()
+        let wpn = $('#wpn-update').val()
         let s3 = new AWS.S3({
           // apiVersion: "2012-10-17",
           params: { Bucket: siteBucket }
@@ -273,7 +274,6 @@ $(document).ready(function () {
     }
   });
 
-
   $("#closeBtn").click(function (e) {
     $('form').get(0).reset();
     window.location.reload();
@@ -284,6 +284,10 @@ $(document).ready(function () {
     $('button').prop('disabled', true);
     $('#confirmSubmission').prepend(`<span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`);
     console.log('Processing ..')
+    
+    // Get the user-provided WPN value - ensure we capture it at submission time
+    let userWpn = $('#wpn').val();
+    
     let base64;
     let author = [];
     var reader = new FileReader(),
@@ -295,24 +299,27 @@ $(document).ready(function () {
 
       var s3 = new AWS.S3({ params: { Bucket: workingPaperBucket } });
 
+      // Use the user-provided WPN for the S3 key
       var data = {
-        Key: `temp/${wpn}`,
+        Key: `temp/${userWpn}`,
         Body: base64,
         ContentEncoding: 'base64',
         ContentType: 'application/pdf'
       };
+      
       s3.putObject(data, function (err, data) {
         if (err) {
           console.log(err);
           console.log('Error uploading data: ', data);
+          let msg = `<p><strong>Error uploading file.</strong></p><p>An error occurred while uploading your file: ${err.message}</p>`
+          triggerError(msg)
         } else {
           console.log('Successfully uploaded the file!');
 
-          // all values are string
+          // all values are string - use the user-provided WPN
           let data = {
-            wpn: $('#wpn').val(),
+            wpn: userWpn,
             title: $('#title').val(),
-            // email: $('#email').val(),
             author: author.join('|'),
             keyword: $("#keyword").tagsinput('items').join(', '),
             jel_code: $('#jel').val(),
@@ -320,12 +327,15 @@ $(document).ready(function () {
             pub_online: date.getDate() + ' ' + date.toLocaleString('default', { month: 'long' }) + ' ' + date.getFullYear(),
             site_bucket: config.siteBucket,
             working_paper_bucket: config.workingPapersBucket,
-            repec_handle: config.repecHandle, // 'RePEc:mos:moswps'
+            repec_handle: config.repecHandle,
             template_url: templateUrl,
             region: awsRegion,
-            // file: base64,
             mode: 'upload'
           }
+          
+          // Log the data being sent to ensure WPN is correct
+          console.log("Sending data to API:", data);
+          
           // send paper metadata and trigger Lambda function
           $.ajax({
             url: apiEndpoint,
@@ -336,9 +346,9 @@ $(document).ready(function () {
             processData: true,
             data: data,
             success: function (response) {
-              console.log(response)
+              console.log("API response:", response)
               if ('errorMessage' in response) {
-                let msg = `<p><strong>Oops!</strong></p><p>An error has occurred. Please try again later.</p>`
+                let msg = `<p><strong>Oops!</strong></p><p>An error has occurred: ${response.errorMessage}</p>`
                 triggerError(msg)
               }
               else {
@@ -350,34 +360,35 @@ $(document).ready(function () {
                 console.log('Done!')
               }
             },
-            error: function () {
-              console.log("error!")
-              let msg = `<p><strong>Oops!</strong></p><p>An error has occurred. Please try again later.</p>`
+            error: function (xhr, status, error) {
+              console.log("AJAX error:", xhr, status, error)
+              let errorMsg = xhr.responseJSON && xhr.responseJSON.errorMessage ? xhr.responseJSON.errorMessage : error;
+              let msg = `<p><strong>Oops!</strong></p><p>An error has occurred: ${errorMsg}</p>`
               triggerError(msg)
             }
           });
-
         }
       });
     };
     reader.readAsDataURL(file.files[0]);
-    // }
   });
+  
   $("#updatePaper").click(function (e) {
     $('#updateModal').modal('hide');
     $('button').prop('disabled', true);
     $('#confirmUpdate').prepend(`<span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`);
     console.log('Processing ..')
     let base64;
-    let author = [];
-    // var form = document.getElementById('wpForm');
+    
+    // Get the user-provided WPN value for update
+    let wpn = $('#wpn-update').val();
+    
     var reader = new FileReader(),
       file = $('#inputUpdateFile')[0];
     reader.onload = function () {
       let result = reader.result;
       base64 = result.replace(/^[^,]*,/, '')
-      // all values are string
-      let wpn = $('#wpn-update').val()
+      
       // upload raw PDF file to S3
       var s3 = new AWS.S3({ params: { Bucket: workingPaperBucket } });
       var data = {
@@ -386,10 +397,13 @@ $(document).ready(function () {
         ContentEncoding: 'base64',
         ContentType: 'application/pdf'
       };
+      
       s3.putObject(data, function (err, data) {
         if (err) {
           console.log(err);
           console.log('Error uploading data: ', data);
+          let msg = `<p><strong>Error uploading file.</strong></p><p>An error occurred while uploading your file: ${err.message}</p>`
+          triggerError(msg)
         } else {
           console.log('Successfully uploaded the file!');
 
@@ -397,12 +411,15 @@ $(document).ready(function () {
             wpn: wpn,
             site_bucket: config.siteBucket,
             working_paper_bucket: config.workingPapersBucket,
-            repec_handle: config.repecHandle, // 'RePEc:mos:moswps'
+            repec_handle: config.repecHandle,
             template_url: templateUrl,
             region: awsRegion,
-            // file: base64,
             mode: 'update'
           }
+          
+          // Log the data being sent to ensure WPN is correct
+          console.log("Sending update data to API:", data);
+          
           $.ajax({
             url: apiEndpoint,
             type: "POST",
@@ -412,9 +429,9 @@ $(document).ready(function () {
             processData: true,
             data: data,
             success: function (response) {
-              console.log(response)
+              console.log("API response:", response)
               if ('errorMessage' in response) {
-                let msg = `<p><strong>Oops!</strong></p><p>An error has occurred. Please try again later.</p>`
+                let msg = `<p><strong>Oops!</strong></p><p>An error has occurred: ${response.errorMessage}</p>`
                 triggerError(msg)
               }
               else {
@@ -426,21 +443,16 @@ $(document).ready(function () {
                 console.log('Done!')
               }
             },
-            error: function () {
-              let msg = `<p><strong>Oops!</strong></p><p>An error has occurred. Please try again later.</p>`
+            error: function (xhr, status, error) {
+              console.log("AJAX error:", xhr, status, error)
+              let errorMsg = xhr.responseJSON && xhr.responseJSON.errorMessage ? xhr.responseJSON.errorMessage : error;
+              let msg = `<p><strong>Oops!</strong></p><p>An error has occurred: ${errorMsg}</p>`
               triggerError(msg)
             }
           });
-
-
         }
-
       });
-
     };
-
-
     reader.readAsDataURL(file.files[0]);
-    // }
   });
 });

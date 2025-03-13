@@ -161,9 +161,10 @@
           <div class="tab-pane fade show active" id="nav-upload" role="tabpanel" aria-labelledby="nav-upload-tab">
             <form id="wpForm" method="POST" novalidate>
               <div class="form-group">
+                <strong style="color: red;">* </strong>
                 <label for="wpn">WP Series Number</label>
-                <input id="wpn" class="form-control" type="text" placeholder="" value="" readonly>
-                <small class="form-text text-muted">This would be your working paper series number.</small>
+                <input id="wpn" class="form-control" type="text" placeholder="" value="">
+                <small class="form-text text-muted">This would be your working paper series number. A suggested format is provided, but you can edit it as needed.</small>
               </div>
               <div class="form-group">
                 <strong style="color: red;">* </strong>
@@ -251,7 +252,7 @@
                 <strong style="color: red;">* </strong>
                 <label for="wpn-update">WP Series Number</label>
                 <input id="wpn-update" class="form-control" type="text"
-                  placeholder="Please enter your working paper number" pattern="^[\d]{4}[-][\d]{2}$" required>
+                  placeholder="Please enter your working paper number" required>
                 <small class="form-text text-muted">We will fetch additional information to help you verify your working
                   paper.</small>
               </div>
